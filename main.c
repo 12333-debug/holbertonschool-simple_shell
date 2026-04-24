@@ -5,6 +5,7 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <errno.h>
+#include "shell.h"
 
 extern char **environ;
 
@@ -25,39 +26,6 @@ char *trim_spaces(char *s)
 
     *(end + 1) = '\0';
     return s;
-}
-
-/* Split line into tokens */
-char **split_line(char *line)
-{
-    char **tokens;
-    char *token;
-    int bufsize = 64;
-    int i = 0;
-
-    tokens = malloc(sizeof(char *) * bufsize);
-    if (!tokens)
-        return NULL;
-
-    token = strtok(line, " \t");
-    while (token != NULL)
-    {
-        tokens[i] = token;
-        i++;
-
-        if (i >= bufsize)
-        {
-            bufsize += 64;
-            tokens = realloc(tokens, sizeof(char *) * bufsize);
-            if (!tokens)
-                return NULL;
-        }
-
-        token = strtok(NULL, " \t");
-    }
-
-    tokens[i] = NULL;
-    return tokens;
 }
 
 int main(int argc, char **argv)
