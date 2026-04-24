@@ -1,40 +1,70 @@
-#include "shell.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <string.h>
+#include <errno.h>
 
-/**
- * main - Entry point of the simple shell
- * Return: 0 on success
- */
-int main(void)
+extern char **environ;
+
+int main(int argc, char **argv)
 {
     char *line = NULL;
     size_t len = 0;
-    ssize_t n;
+    ssize_t nread;
+    pid_t pid;
+    int status;
+    int interactive = isatty(STDIN_FILENO);
+
+    (void)argc;
 
     while (1)
     {
+        if (interactive)
+            write(STDOUT_FILENO, "($) ", 4);
 
-        display_prompt();  /* Affiche le prompt uniquement en mode interactif */
-
-        n = getline(&line, &len, stdin);/* Lit la ligne entrée par l'utilisateur */
-        if (n == -1)
-        {
-            /* Ctrl+D ou erreur */
-            free(line);
-            write(1, "\n", 1);
+        /* Read user input */
+        nread = getline(&line, &len, stdin);
+        if (nread == -1) /* EOF (Ctrl+D) */
             break;
+
+        /* Ignore empty line */
+        if (nread == 1 && line[0] == '\n')
+            continue;
+
+        /* Remove newline */
+        if (line[nread - 1] == '\n')
+            line[nread - 1] = '\0';
+
+        pid = fork();
+        if (pid == -1)
+        {
+            perror(argv[0]);
+            free(line);
+            exit(EXIT_FAILURE);
         }
 
-        if (line[n - 1] == '\n')/* Retire le \n final */
-            line[n - 1] = '\0';
-
-        if (strcmp(line, "exit") == 0)
+        if (pid == 0)
         {
-            free(line);
-            break;
-        }
+            char *cmd_argv[2];
 
-        execute_command(line); /*execute la commande*/
+            cmd_argv[0] = line;
+            cmd_argv[1] = NULL;
+
+            /* No PATH handling: execve only what user typed */
+            if (execve(line, cmd_argv, environ) == -1)
+            {
+                perror(argv[0]);
+                exit(EXIT_FAILURE);
+            }
+        }
+        else
+        {
+            waitpid(pid, &status, 0);
+        }
     }
 
-    return (0);
+    free(line);
+    return 0;
 }
