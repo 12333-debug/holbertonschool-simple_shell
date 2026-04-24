@@ -8,6 +8,23 @@
 
 extern char **environ;
 
+/* Remove leading/trailing spaces */
+char *trim_spaces(char *s)
+{
+    while (*s == ' ' || *s == '\t')
+        s++;
+
+    if (*s == '\0')
+        return s;
+
+    char *end = s + strlen(s) - 1;
+    while (end > s && (*end == ' ' || *end == '\t'))
+        end--;
+
+    *(end + 1) = '\0';
+    return s;
+}
+
 int main(int argc, char **argv)
 {
     char *line = NULL;
@@ -24,18 +41,20 @@ int main(int argc, char **argv)
         if (interactive)
             write(STDOUT_FILENO, "($) ", 4);
 
-        /* Read user input */
         nread = getline(&line, &len, stdin);
-        if (nread == -1) /* EOF (Ctrl+D) */
+        if (nread == -1) /* EOF */
             break;
-
-        /* Ignore empty line */
-        if (nread == 1 && line[0] == '\n')
-            continue;
 
         /* Remove newline */
         if (line[nread - 1] == '\n')
             line[nread - 1] = '\0';
+
+        /* Trim spaces */
+        char *cmd = trim_spaces(line);
+
+        /* Ignore empty or spaces-only lines */
+        if (cmd[0] == '\0')
+            continue;
 
         pid = fork();
         if (pid == -1)
@@ -48,12 +67,10 @@ int main(int argc, char **argv)
         if (pid == 0)
         {
             char *cmd_argv[2];
-
-            cmd_argv[0] = line;
+            cmd_argv[0] = cmd;
             cmd_argv[1] = NULL;
 
-            /* No PATH handling: execve only what user typed */
-            if (execve(line, cmd_argv, environ) == -1)
+            if (execve(cmd, cmd_argv, environ) == -1)
             {
                 perror(argv[0]);
                 exit(EXIT_FAILURE);
