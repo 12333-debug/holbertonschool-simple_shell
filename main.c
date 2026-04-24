@@ -36,6 +36,7 @@ int main(int argc, char **argv)
     ssize_t nread;
     pid_t pid;
     int status;
+    int last_status = 0;
     int interactive = isatty(STDIN_FILENO);
 
     (void)argc;
@@ -60,14 +61,13 @@ int main(int argc, char **argv)
         if (!args)
             continue;
 
-		/* Built-in exit */
-		if (strcmp(args[0], "exit") == 0)
-		{
-    		free(args);
-    		free(line);
-    		exit(0);
-		}
-
+        /* Built-in exit */
+        if (strcmp(args[0], "exit") == 0)
+        {
+            free(args);
+            free(line);
+            exit(last_status);
+        }
 
         cmd_path = find_in_path(args[0]);
         if (!cmd_path)
@@ -94,6 +94,9 @@ int main(int argc, char **argv)
         else
         {
             waitpid(pid, &status, 0);
+
+            if (WIFEXITED(status))
+                last_status = WEXITSTATUS(status);
         }
 
         if (cmd_path != args[0])
@@ -103,5 +106,5 @@ int main(int argc, char **argv)
     }
 
     free(line);
-    return 0;
+    return last_status;
 }
