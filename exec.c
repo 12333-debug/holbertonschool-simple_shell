@@ -18,13 +18,7 @@ void execute_command(char *line)
     argv = split_line(line);
     if (!argv)
         return;
-
-    /* debug: afficher argv */
-	/**
-    for (j = 0; argv[j]; j++)
-        fprintf(stderr, "DEBUG: argv[%d]=%s\n", j, argv[j]);
-	*/
-
+	
     if (!argv[0])
     {
         free(argv);
