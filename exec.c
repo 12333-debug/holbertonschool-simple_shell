@@ -1,8 +1,7 @@
 #include "shell.h"
 
 /**
- * execute_command - execute a command line (tokenize + PATH resolution)
- * @line: modifiable line (will be tokenized)
+ * execute_command - tokenize + PATH + exec
  */
 void execute_command(char *line)
 {
@@ -11,7 +10,7 @@ void execute_command(char *line)
     char **argv;
     char *full_path = NULL;
 
-    if (line == NULL)
+    if (!line)
         return;
 
     argv = split_line(line);
@@ -27,16 +26,15 @@ void execute_command(char *line)
     /* built-in env */
     if (strcmp(argv[0], "env") == 0)
     {
-        builtin_env();   /* affiche toutes les variables */
-        free(argv);      /* libère argv */
-        return;          /* surtout pas fork */
+        builtin_env();
+        free(argv);
+        return;
     }
 
-    /* resolve path */
+    /* PATH resolution */
     full_path = find_path(argv[0]);
     if (!full_path)
     {
-        /* command not found */
         fprintf(stderr, "%s: command not found\n", argv[0]);
         free(argv);
         return;
@@ -53,7 +51,6 @@ void execute_command(char *line)
 
     if (pid == 0)
     {
-        /* child */
         if (execve(full_path, argv, environ) == -1)
         {
             perror(full_path);
@@ -62,7 +59,6 @@ void execute_command(char *line)
     }
     else
     {
-        /* parent */
         waitpid(pid, &status, 0);
     }
 
