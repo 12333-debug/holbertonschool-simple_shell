@@ -1,36 +1,27 @@
 #include "shell.h"
 
 /**
- * find_path - search for cmd in PATH and return malloc'd full path
- * @cmd: command name (e.g., "ls")
- *
- * Return: malloc'd full path if found (caller must free), otherwise NULL
- *
- * Uses only the allowed functions: functions from string.h, access, malloc,
- * free, strdup, strtok and environ.
+ * find_path - search for cmd in PATH
+ * Return: malloc'd full path or NULL
  */
 char *find_path(char *cmd)
 {
-    char *path_env = NULL;
-    char *path_copy = NULL;
-    char *path_dir;
-    char *try_path = NULL;
+    char *path_env = NULL, *path_copy = NULL;
+    char *path_dir, *try_path;
     size_t dir_len, cmd_len;
     int i;
 
-    if (cmd == NULL)
+    if (!cmd)
         return (NULL);
 
-    /* if command already contains a slash, treat as path */
-    if (strchr(cmd, '/') != NULL)
+    if (strchr(cmd, '/'))
     {
         if (access(cmd, X_OK) == 0)
             return (strdup(cmd));
         return (NULL);
     }
 
-    /* find PATH in environ */
-    for (i = 0; environ && environ[i]; i++)
+    for (i = 0; environ[i]; i++)
     {
         if (strncmp(environ[i], "PATH=", 5) == 0)
         {
@@ -48,7 +39,8 @@ char *find_path(char *cmd)
 
     cmd_len = strlen(cmd);
     path_dir = strtok(path_copy, ":");
-    while (path_dir != NULL)
+
+    while (path_dir)
     {
         dir_len = strlen(path_dir);
         try_path = malloc(dir_len + 1 + cmd_len + 1);
@@ -57,6 +49,7 @@ char *find_path(char *cmd)
             free(path_copy);
             return (NULL);
         }
+
         strcpy(try_path, path_dir);
         try_path[dir_len] = '/';
         try_path[dir_len + 1] = '\0';
@@ -69,7 +62,6 @@ char *find_path(char *cmd)
         }
 
         free(try_path);
-        try_path = NULL;
         path_dir = strtok(NULL, ":");
     }
 
