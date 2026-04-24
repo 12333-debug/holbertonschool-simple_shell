@@ -1,22 +1,26 @@
 #include "shell.h"
 
+/**
+ * split_line - Tokenize a command line into arguments
+ * @line: input string to split
+ * Return: array of tokens (argv)
+ */
 char **split_line(char *line)
 {
-    char **argv = NULL;
+    char **argv = malloc(sizeof(char *) * 64);
     char *token;
-    int size = 0;
+    int i = 0;
 
-    argv = malloc(sizeof(char *) * 64);
     if (!argv)
         return (NULL);
 
     token = strtok(line, " ");
     while (token)
     {
-        argv[size++] = token;
+        argv[i++] = token;
         token = strtok(NULL, " ");
     }
-    argv[size] = NULL;
+    argv[i] = NULL;
 
     return (argv);
 }

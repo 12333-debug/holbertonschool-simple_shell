@@ -1,23 +1,27 @@
 #include "shell.h"
 
-/**
- * find_path - search for cmd in PATH
- * Return: malloc'd full path or NULL
- */
+static char *_strdup(const char *s)
+{
+    char *p;
+    size_t len = strlen(s);
+
+    p = malloc(len + 1);
+    if (!p)
+        return (NULL);
+
+    strcpy(p, s);
+    return (p);
+}
+
 char *find_path(char *cmd)
 {
-    char *path_env = NULL, *path_copy = NULL;
-    char *path_dir, *try_path;
-    size_t dir_len, cmd_len;
+    char *path_env = NULL, *copy, *dir, *full;
     int i;
-
-    if (!cmd)
-        return (NULL);
 
     if (strchr(cmd, '/'))
     {
-        if (access(cmd, X_OK) == 0)
-            return (strdup(cmd));
+        if (access(cmd, 0) == 0)
+            return (_strdup(cmd));
         return (NULL);
     }
 
@@ -33,38 +37,34 @@ char *find_path(char *cmd)
     if (!path_env)
         return (NULL);
 
-    path_copy = strdup(path_env);
-    if (!path_copy)
+    copy = _strdup(path_env);
+    if (!copy)
         return (NULL);
 
-    cmd_len = strlen(cmd);
-    path_dir = strtok(path_copy, ":");
-
-    while (path_dir)
+    dir = strtok(copy, ":");
+    while (dir)
     {
-        dir_len = strlen(path_dir);
-        try_path = malloc(dir_len + 1 + cmd_len + 1);
-        if (!try_path)
+        full = malloc(strlen(dir) + strlen(cmd) + 2);
+        if (!full)
         {
-            free(path_copy);
+            free(copy);
             return (NULL);
         }
 
-        strcpy(try_path, path_dir);
-        try_path[dir_len] = '/';
-        try_path[dir_len + 1] = '\0';
-        strcat(try_path, cmd);
+        strcpy(full, dir);
+        strcat(full, "/");
+        strcat(full, cmd);
 
-        if (access(try_path, X_OK) == 0)
+        if (access(full, 0) == 0)
         {
-            free(path_copy);
-            return (try_path);
+            free(copy);
+            return (full);
         }
 
-        free(try_path);
-        path_dir = strtok(NULL, ":");
+        free(full);
+        dir = strtok(NULL, ":");
     }
 
-    free(path_copy);
+    free(copy);
     return (NULL);
 }
