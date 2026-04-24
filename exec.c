@@ -28,6 +28,13 @@ void execute_command(char *line)
         free(argv);
         return;
     }
+	
+	if (strcmp(argv[0], "env") == 0)
+    {
+        builtin_env();   /* affiche toutes les variables */
+        free(argv);      /* libère argv */
+        return;          /* surtout pas fork */
+    }
 
     /* resolve path */
     full_path = find_path(argv[0]);
