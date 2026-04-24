@@ -27,10 +27,44 @@ char *trim_spaces(char *s)
     return s;
 }
 
+/* Split line into tokens */
+char **split_line(char *line)
+{
+    char **tokens;
+    char *token;
+    int bufsize = 64;
+    int i = 0;
+
+    tokens = malloc(sizeof(char *) * bufsize);
+    if (!tokens)
+        return NULL;
+
+    token = strtok(line, " \t");
+    while (token != NULL)
+    {
+        tokens[i] = token;
+        i++;
+
+        if (i >= bufsize)
+        {
+            bufsize += 64;
+            tokens = realloc(tokens, sizeof(char *) * bufsize);
+            if (!tokens)
+                return NULL;
+        }
+
+        token = strtok(NULL, " \t");
+    }
+
+    tokens[i] = NULL;
+    return tokens;
+}
+
 int main(int argc, char **argv)
 {
     char *line = NULL;
-    char *cmd;
+    char *trimmed;
+    char **args;
     size_t len = 0;
     ssize_t nread;
     pid_t pid;
@@ -45,35 +79,36 @@ int main(int argc, char **argv)
             write(STDOUT_FILENO, "($) ", 4);
 
         nread = getline(&line, &len, stdin);
-        if (nread == -1) /* EOF */
+        if (nread == -1)
             break;
 
         if (line[nread - 1] == '\n')
             line[nread - 1] = '\0';
 
-        cmd = trim_spaces(line);
+        trimmed = trim_spaces(line);
 
-        /* Ignore empty or spaces-only lines */
-        if (cmd[0] == '\0')
+        if (trimmed[0] == '\0')
+            continue;
+
+        args = split_line(trimmed);
+        if (!args)
             continue;
 
         pid = fork();
         if (pid == -1)
         {
             perror(argv[0]);
+            free(args);
             free(line);
             exit(EXIT_FAILURE);
         }
 
         if (pid == 0)
         {
-            char *cmd_argv[2];
-            cmd_argv[0] = cmd;
-            cmd_argv[1] = NULL;
-
-            if (execve(cmd, cmd_argv, environ) == -1)
+            if (execve(args[0], args, environ) == -1)
             {
                 perror(argv[0]);
+                free(args);
                 exit(EXIT_FAILURE);
             }
         }
@@ -81,6 +116,8 @@ int main(int argc, char **argv)
         {
             waitpid(pid, &status, 0);
         }
+
+        free(args);
     }
 
     free(line);
