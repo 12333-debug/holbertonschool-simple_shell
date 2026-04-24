@@ -8,17 +8,17 @@
  */
 char *find_path(char *cmd)
 {
-	char *path_env = NULL;
-	char *path_copy = NULL;
-	char *path_dir;
-	char *try_path = NULL;
-	size_t dir_len, cmd_len;
-	int i;
+    char *path_env = NULL;
+    char *path_copy = NULL;
+    char *path_dir;
+    char *try_path = NULL;
+    size_t dir_len, cmd_len;
+    int i;
 
-	if (cmd == NULL)
-		return (NULL);
+    if (cmd == NULL)
+        return (NULL);
 
-	/* if command already contains a slash, treat as path */
+    /* if command already contains a slash, treat as path */
     if (strchr(cmd, '/') != NULL)
     {
         if (access(cmd, X_OK) == 0)
@@ -39,6 +39,9 @@ char *find_path(char *cmd)
     if (!path_env)
         return (NULL);
 
+    /* debug: afficher PATH */
+    fprintf(stderr, "DEBUG: PATH=%s\n", path_env);
+
     path_copy = strdup(path_env);
     if (!path_copy)
         return (NULL);
@@ -58,6 +61,9 @@ char *find_path(char *cmd)
         try_path[dir_len] = '/';
         try_path[dir_len + 1] = '\0';
         strcat(try_path, cmd);
+
+        /* debug: afficher le chemin testé */
+        fprintf(stderr, "DEBUG: try_path=%s\n", try_path);
 
         if (access(try_path, X_OK) == 0)
         {
