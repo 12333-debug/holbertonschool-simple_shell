@@ -8,6 +8,19 @@ This is a minimal Unix shell implemented for the Holberton School project.
 
 The shell uses `getline`, `strtok`, `fork`, `execve`, `waitpid`, `access`, and low-level I/O (`write`) for the prompt.
 
+## Requirements
+
+This project follows the Holberton School requirements:
+
+- Operating System: **Ubuntu 20.04 LTS**
+- Compiler: **gcc**
+- Compilation flags:  
+  `-Wall -Werror -Wextra -pedantic -std=gnu89`
+- Coding style: **Betty Style**
+
+External resources:  
+- Betty linter: https://github.com/hs-hq/Betty
+
 ## Supported features
 
 - Prompt printed when input is interactive (`$ `)  
@@ -17,6 +30,15 @@ The shell uses `getline`, `strtok`, `fork`, `execve`, `waitpid`, `access`, and l
 - Execute commands with `fork` + `execve` and wait with `waitpid`  
 - Builtin: `exit` to quit the shell  
 - Handles EOF (Ctrl-D) to exit cleanly
+
+## Installation
+
+To install and run the shell:
+
+```bash
+git https://github.com/12333-debug/holbertonschool-simple_shell.git
+gcc -Wall -Werror -Wextra -pedantic -std=gnu89 *.c -o hsh
+./hsh
 
 ## Limitations
 
