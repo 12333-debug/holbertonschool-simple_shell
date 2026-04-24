@@ -8,16 +8,18 @@
 
 extern char **environ;
 
-/* Remove leading/trailing spaces */
+/* Trim leading and trailing spaces */
 char *trim_spaces(char *s)
 {
+    char *end;
+
     while (*s == ' ' || *s == '\t')
         s++;
 
     if (*s == '\0')
         return s;
 
-    char *end = s + strlen(s) - 1;
+    end = s + strlen(s) - 1;
     while (end > s && (*end == ' ' || *end == '\t'))
         end--;
 
@@ -28,6 +30,7 @@ char *trim_spaces(char *s)
 int main(int argc, char **argv)
 {
     char *line = NULL;
+    char *cmd;
     size_t len = 0;
     ssize_t nread;
     pid_t pid;
@@ -45,12 +48,10 @@ int main(int argc, char **argv)
         if (nread == -1) /* EOF */
             break;
 
-        /* Remove newline */
         if (line[nread - 1] == '\n')
             line[nread - 1] = '\0';
 
-        /* Trim spaces */
-        char *cmd = trim_spaces(line);
+        cmd = trim_spaces(line);
 
         /* Ignore empty or spaces-only lines */
         if (cmd[0] == '\0')
