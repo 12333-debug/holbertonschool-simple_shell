@@ -10,7 +10,6 @@ void execute_command(char *line)
     int status;
     char **argv;
     char *full_path = NULL;
-    int j;
 
     if (line == NULL)
         return;
@@ -18,14 +17,15 @@ void execute_command(char *line)
     argv = split_line(line);
     if (!argv)
         return;
-	
+
     if (!argv[0])
     {
         free(argv);
         return;
     }
 
-	if (strcmp(argv[0], "env") == 0)
+    /* built-in env */
+    if (strcmp(argv[0], "env") == 0)
     {
         builtin_env();   /* affiche toutes les variables */
         free(argv);      /* libère argv */
@@ -56,7 +56,6 @@ void execute_command(char *line)
         /* child */
         if (execve(full_path, argv, environ) == -1)
         {
-            /* affiche l'erreur système liée au chemin exact */
             perror(full_path);
             _exit(127);
         }
