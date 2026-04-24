@@ -10,6 +10,7 @@ void execute_command(char *line)
     int status;
     char **argv;
     char *full_path = NULL;
+    int j;
 
     if (line == NULL)
         return;
@@ -17,6 +18,10 @@ void execute_command(char *line)
     argv = split_line(line);
     if (!argv)
         return;
+
+    /* debug: afficher argv */
+    for (j = 0; argv[j]; j++)
+        fprintf(stderr, "DEBUG: argv[%d]=%s\n", j, argv[j]);
 
     if (!argv[0])
     {
@@ -29,7 +34,7 @@ void execute_command(char *line)
     if (!full_path)
     {
         /* command not found */
-        dprintf(STDERR_FILENO, "%s: command not found\n", argv[0]);
+        fprintf(stderr, "%s: command not found\n", argv[0]);
         free(argv);
         return;
     }
@@ -48,7 +53,8 @@ void execute_command(char *line)
         /* child */
         if (execve(full_path, argv, environ) == -1)
         {
-            perror("execve");
+            /* affiche l'erreur système liée au chemin exact */
+            perror(full_path);
             _exit(127);
         }
     }
