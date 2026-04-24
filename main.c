@@ -60,6 +60,15 @@ int main(int argc, char **argv)
         if (!args)
             continue;
 
+		/* Built-in exit */
+		if (strcmp(args[0], "exit") == 0)
+		{
+    		free(args);
+    		free(line);
+    		exit(0);
+		}
+
+
         cmd_path = find_in_path(args[0]);
         if (!cmd_path)
         {
