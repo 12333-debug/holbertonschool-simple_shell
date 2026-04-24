@@ -5,6 +5,9 @@
  * @cmd: command name (e.g., "ls")
  *
  * Return: malloc'd full path if found (caller must free), otherwise NULL
+ *
+ * Uses only the allowed functions: functions from string.h, access, malloc,
+ * free, strdup, strtok and environ.
  */
 char *find_path(char *cmd)
 {
@@ -39,9 +42,6 @@ char *find_path(char *cmd)
     if (!path_env)
         return (NULL);
 
-    /* debug: afficher PATH */
-    fprintf(stderr, "DEBUG: PATH=%s\n", path_env);
-
     path_copy = strdup(path_env);
     if (!path_copy)
         return (NULL);
@@ -61,9 +61,6 @@ char *find_path(char *cmd)
         try_path[dir_len] = '/';
         try_path[dir_len + 1] = '\0';
         strcat(try_path, cmd);
-
-        /* debug: afficher le chemin testé */
-        fprintf(stderr, "DEBUG: try_path=%s\n", try_path);
 
         if (access(try_path, X_OK) == 0)
         {
