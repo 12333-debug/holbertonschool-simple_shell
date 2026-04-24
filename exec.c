@@ -20,15 +20,17 @@ void execute_command(char *line)
         return;
 
     /* debug: afficher argv */
+	/**
     for (j = 0; argv[j]; j++)
         fprintf(stderr, "DEBUG: argv[%d]=%s\n", j, argv[j]);
+	*/
 
     if (!argv[0])
     {
         free(argv);
         return;
     }
-	
+
 	if (strcmp(argv[0], "env") == 0)
     {
         builtin_env();   /* affiche toutes les variables */
