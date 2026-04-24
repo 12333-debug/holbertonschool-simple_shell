@@ -18,5 +18,6 @@ void display_prompt(void);
 char **split_line(char *line);
 char *find_path(char *cmd);
 void execute_command(char *line);
+int builtin_env(void);
 
 #endif
