@@ -20,4 +20,8 @@ char *find_path(char *cmd);
 void execute_command(char *line);
 int builtin_env(void);
 
+char **split_line(char *line);
+char *trim_spaces(char *s);
+char *find_in_path(char *cmd);
+
 #endif
