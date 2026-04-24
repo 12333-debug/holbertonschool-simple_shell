@@ -8,14 +8,26 @@ extern char **environ;
 
 char *find_in_path(char *cmd)
 {
-    char *path, *copy, *dir, *full;
-    int len;
+    char *path = NULL;
+    char *copy, *dir, *full;
+    int i, len;
 
+    /* If command is absolute or relative path */
     if (cmd[0] == '/' || cmd[0] == '.')
         return cmd;
 
-    path = getenv("PATH");
-    if (!path)
+    /* Find PATH manually in environ */
+    for (i = 0; environ[i]; i++)
+    {
+        if (strncmp(environ[i], "PATH=", 5) == 0)
+        {
+            path = environ[i] + 5;
+            break;
+        }
+    }
+
+    /* No PATH variable → command cannot be found */
+    if (!path || path[0] == '\0')
         return NULL;
 
     copy = strdup(path);
