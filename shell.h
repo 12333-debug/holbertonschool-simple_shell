@@ -1,7 +1,6 @@
 #ifndef SHELL_H
 #define SHELL_H
 
-/* includes autorisés */
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -11,18 +10,13 @@
 #include <errno.h>
 #include <sys/stat.h>
 
-/* prototypes */
+/* rendre environ accessible depuis les .c */
+extern char **environ;
 
-/* affiche le prompt */
+/* prototypes des fonctions du mini-shell */
 void display_prompt(void);
-
-/* découpe la ligne en tokens (argv) */
 char **split_line(char *line);
-
-/* cherche la commande dans PATH, retourne un chemin malloc'd ou NULL */
 char *find_path(char *cmd);
-
-/* exécute la commande (gère fork/execve/wait) */
 void execute_command(char *line);
 
-#endif /* SHELL_H */
+#endif
